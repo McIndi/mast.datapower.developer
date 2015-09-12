@@ -260,7 +260,6 @@ in which to save the export"""
             results, suffix="export"), util.render_history(env)
 
 
-@logged("mast.datapower.developer")
 def get_data_file(f):
     _root = os.path.dirname(__file__)
     path = os.path.join(_root, "data", f)
