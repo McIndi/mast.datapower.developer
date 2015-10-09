@@ -247,10 +247,12 @@ in which to save the export"""
     for hostname, _export in results.items():
         d = os.path.join(out_dir, hostname, t.timestamp)
         os.makedirs(d)
-        filename = os.path.join(d, '%s-%s-%s.zip' % (
+        extention = format.lower()
+        filename = os.path.join(d, '%s-%s-%s.%s' % (
             t.timestamp,
             hostname,
-            object))
+            object,
+            extention))
         logger.debug("Writing export of {} from {} to {}".format(
             object, hostname, filename))
         with open(filename, 'wb') as fout:
