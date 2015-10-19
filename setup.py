@@ -30,7 +30,7 @@ setup(
             "./mast/datapower/developer/docroot/plugin.css"
         ])
     ],
-    long_description=read('README'),
+    long_description=read('README.md'),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Topic :: Utilities",
