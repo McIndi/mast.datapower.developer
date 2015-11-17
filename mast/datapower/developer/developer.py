@@ -133,7 +133,7 @@ Parameters:
 def _import(appliances=[], credentials=[],
             timeout=120, Domain="", file_in=None,
             deployment_policy=None, dry_run=False,
-            overwrite_files=True, overwrite_objects=True,
+            overwrite_files=True, overwriteobject_names=True,
             rewrite_local_ip=True, source_type='ZIP',
             out_dir="tmp/", no_check_hostname=False, web=False):
     """Import a service/object into the specified appliances
@@ -147,7 +147,7 @@ __MUST__ match the format specified in source_type
 (must already exist on the appliances)
 * dry_run - Whether to do a dry-run (nothing will be imported)
 * overwrite_files - Whether to overwrite files
-* overwrite_objects - Whether to overwrite objects
+* overwriteobject_names - Whether to overwrite objects
 * rewrite_local_ip - Whether to rewrite the local ip addresses in the
 configuration
 * source-type - The type of file to import. Can be "XML" or "ZIP" """
@@ -170,7 +170,7 @@ configuration
         'deployment_policy': deployment_policy,
         'dry_run': dry_run,
         'overwrite_files': overwrite_files,
-        'overwrite_objects': overwrite_objects,
+        'overwriteobject_names': overwriteobject_names,
         'rewrite_local_ip': rewrite_local_ip,
         'source_type': source_type}
 
@@ -193,7 +193,7 @@ configuration
 @cli.command('export', category='services/objects')
 def export(appliances=[], credentials=[],
            timeout=120, Domain="",
-           object=None, object_class=None,
+           object_name=None, object_class=None,
            comment='', format='ZIP',
            persisted=True, all_files=True,
            referenced_files=True, referenced_objects=True,
@@ -204,7 +204,7 @@ domain or appliance
 Parameters:
 
 * Domain - The domain from which to export service/object
-* object - The name of the object to export
+* object_name - The name of the object to export
 * object_class - The class of the object to export
 * comment - The comment to embed into the export
 * format - the format in which to export the configuration. This
@@ -218,6 +218,12 @@ can be either "XML" or "ZIP"
 in which to save the export"""
     logger = make_logger("mast.developer")
     t = Timestamp()
+    if object_name is None or object_class is None:
+        try:
+            raise TypeError("Must Provide both object name and object class")
+        except:
+            logger.exception("Must Provide both object name and object class")
+            raise
 
     check_hostname = not no_check_hostname
     env = datapower.Environment(
@@ -227,11 +233,11 @@ in which to save the export"""
         check_hostname=check_hostname)
     logger.info(
         "Attempting to export {} from {}".format(
-            object, str(env.appliances)))
+            object_name, str(env.appliances)))
 
     kwargs = {
         'domain': Domain,
-        'obj': object,
+        'obj': object_name,
         'object_class': object_class,
         'comment': comment,
         'format': format,
@@ -251,10 +257,10 @@ in which to save the export"""
         filename = os.path.join(d, '%s-%s-%s.%s' % (
             t.timestamp,
             hostname,
-            object,
+            object_name,
             extention))
         logger.debug("Writing export of {} from {} to {}".format(
-            object, hostname, filename))
+            object_name, hostname, filename))
         with open(filename, 'wb') as fout:
             fout.write(_export)
     if web:
