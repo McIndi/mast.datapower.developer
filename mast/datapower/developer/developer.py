@@ -9,10 +9,13 @@ McIndi Solutions LLC
 =========================================================="""
 import os
 import commandr
-from mast.logging import make_logger, logged
-import mast.plugin_utils.plugin_utils as util
+from mast.plugins.web import Plugin
 from mast.datapower import datapower
 from mast.timestamp import Timestamp
+from mast.logging import make_logger, logged
+import mast.plugin_utils.plugin_utils as util
+from functools import partial, update_wrapper
+import mast.plugin_utils.plugin_functions as pf
 
 cli = commandr.Commandr()
 
@@ -50,7 +53,8 @@ Parameters:
         timeout,
         check_hostname=check_hostname)
     logger.info(
-        "Attempting to flush document cache for {} in {} domain on {} XMLManager".format(
+        "Attempting to flush document cache for "
+        "{} in {} domain on {} XMLManager".format(
             str(env.appliances), Domain, xml_manager))
 
     kwargs = {"XMLManager": xml_manager, 'domain': Domain}
@@ -93,7 +97,8 @@ Parameters:
         timeout,
         check_hostname=check_hostname)
     logger.info(
-        "Attempting to flush stylesheet cache for {} in {} domain on {} XMLManager".format(
+        "Attempting to flush stylesheet cache for "
+        "{} in {} domain on {} XMLManager".format(
             str(env.appliances), Domain, xml_manager))
 
     kwargs = {"XMLManager": xml_manager, 'domain': Domain}
@@ -133,7 +138,7 @@ Parameters:
 def _import(appliances=[], credentials=[],
             timeout=120, Domain="", file_in=None,
             deployment_policy=None, dry_run=False,
-            overwrite_files=True, overwriteobject_names=True,
+            overwrite_files=True, overwrite_objects=True,
             rewrite_local_ip=True, source_type='ZIP',
             out_dir="tmp/", no_check_hostname=False, web=False):
     """Import a service/object into the specified appliances
@@ -147,7 +152,7 @@ __MUST__ match the format specified in source_type
 (must already exist on the appliances)
 * dry_run - Whether to do a dry-run (nothing will be imported)
 * overwrite_files - Whether to overwrite files
-* overwriteobject_names - Whether to overwrite objects
+* overwrite_objects - Whether to overwrite objects
 * rewrite_local_ip - Whether to rewrite the local ip addresses in the
 configuration
 * source-type - The type of file to import. Can be "XML" or "ZIP" """
@@ -170,7 +175,7 @@ configuration
         'deployment_policy': deployment_policy,
         'dry_run': dry_run,
         'overwrite_files': overwrite_files,
-        'overwriteobject_names': overwriteobject_names,
+        'overwrite_objects': overwrite_objects,
         'rewrite_local_ip': rewrite_local_ip,
         'source_type': source_type}
 
@@ -274,10 +279,6 @@ def get_data_file(f):
     with open(path, "rb") as fin:
         return fin.read()
 
-from mast.plugins.web import Plugin
-import mast.plugin_utils.plugin_functions as pf
-from functools import partial, update_wrapper
-
 
 class WebPlugin(Plugin):
     def __init__(self):
@@ -300,4 +301,3 @@ if __name__ == '__main__':
         if "'NoneType' object has no attribute 'app'" in e:
             raise NotImplementedError(
                 "HTML formatted output is not supported on the CLI")
-
