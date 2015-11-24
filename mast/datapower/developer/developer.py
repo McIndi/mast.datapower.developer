@@ -274,6 +274,65 @@ in which to save the export"""
             results, suffix="export"), util.render_history(env)
 
 
+@logged("mast.datapower.developer")
+@cli.command('list-probes', category='services/objects')
+def list_probes(appliances=[], credentials=[],
+                timeout=120,   Domain=[],
+                no_check_hostname=False, web=False):
+    """list-probes - Lists all enabled probes in all specified domains
+
+Parameters:
+
+* appliances - The hostname/ip/alias/environment of the
+appliances you would like to inspect
+* credentials - The credentials to use to authenticate to the
+appliances
+* timeout - The timeout in seconds to wait for a response from the
+appliances (per-request)
+* Domain - One or more domains to inspect"""
+    import urllib2
+    check_hostname = not no_check_hostname
+    env = datapower.Environment(
+        appliances,
+        credentials,
+        timeout=timeout,
+        check_hostname=check_hostname)
+    results = {}
+    for appliance in env.appliances:
+        domains = Domain
+        if "all-domains" in Domain:
+            domains = appliance.domains
+        for domain in domains:
+            try:
+                config = appliance.get_config(
+                    _class="all-classes",
+                    name="all-objects",
+                    domain=domain,
+                    persisted=False)
+            except urllib2.HTTPError:
+                config = appliance.get_config(domain=domain, persisted=False)
+            for obj in config.xml.findall(datapower.CONFIG_XPATH):
+                if obj.find("DebugMode") is not None:
+                    if obj.find("DebugMode").text == "on":
+                        k = "{}-{}".format(appliance.hostname, domain)
+                        v = "{} - {}".format(obj.tag, obj.get("name"))
+                        if k in results:
+                            results[k].append(v)
+                        else:
+                            results[k] = [v]
+    if web:
+        for k, v in results.items():
+            results[k] = "\n".join(v)
+        return (
+            util.render_results_table(results),
+            util.render_history(env))
+    else:
+        for k, v in results.items():
+            print k, "\n", "-" * len(k)
+            for item in v:
+                print "\t{}".format(item)
+
+
 def get_data_file(f):
     return resource_string(__name__, 'docroot/{}'.format(f))
 
