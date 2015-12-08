@@ -279,7 +279,7 @@ in which to save the export"""
 def list_probes(appliances=[], credentials=[],
                 timeout=120,   Domain=[],
                 no_check_hostname=False, web=False):
-    """list-probes - Lists all enabled probes in all specified domains
+    """Lists all enabled probes in all specified domains
 
 Parameters:
 
