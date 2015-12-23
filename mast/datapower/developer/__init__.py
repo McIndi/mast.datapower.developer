@@ -1,3 +1,12 @@
+"""==========================================================
+mast dev:
+
+A set of tools for automating routine development
+tasks associated with IBM DataPower appliances.
+
+Copyright 2014, All Rights Reserved
+McIndi Solutions LLC
+=========================================================="""
 from developer import *
 from developer import _import
 

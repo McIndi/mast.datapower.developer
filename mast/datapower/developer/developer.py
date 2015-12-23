@@ -36,16 +36,40 @@ cli = commandr.Commandr()
 
 @logged("mast.datapower.developer")
 @cli.command('flush-document-cache', category='caches')
-def flush_document_cache(appliances=[], credentials=[],
-                         timeout=120, Domain="", xml_manager="",
-                         no_check_hostname=False, web=False):
+def flush_document_cache(appliances=[],
+                         credentials=[],
+                         timeout=120,
+                         no_check_hostname=False,
+                         Domain="",
+                         xml_manager="",
+                         web=False):
     """Flushes the Document Cache for the specified xml_manager
 in the specified domain.
 
 Parameters:
 
-* Domain - The domain where xml_manager resides
-* xml_manager - The XMLManager who's cache to flush'"""
+* `-a, --appliances`: The hostname(s), ip addresse(s), environment name(s)
+or alias(es) of the appliances you would like to affect. For details
+on configuring environments please see the comments in
+`environments.conf` located in `$MAST_HOME/etc/default`. For details
+on configuring aliases please see the comments in `hosts.conf` located
+in `$MAST_HOME/etc/default`.
+* `-c, --credentials`: The credentials to use for authenticating to the
+appliances. Should be either one set to use for all appliances
+or one set for each appliance. Credentials should be in the form
+`username:password` and should be provided in a space-seperated list
+if multiple are provided. If you would prefer to not use plain-text
+passwords, you can use the output of
+`$ mast-system xor <username:password>`.
+* `-t, --timeout`: The timeout in seconds to wait for a response from
+an appliance for any single request. __NOTE__ Program execution may
+halt if a timeout is reached.
+* `-n, --no-check-hostname`: If specified SSL verification will be turned
+off when sending commands to the appliances.
+* `-D, --Domain`: The domain where xml_manager resides
+* `-x, --xml-manager`: The XMLManager who's cache to flush
+* `-w, --web`: __For Internel Use Only, will be removed in future versions.
+DO NOT USE.__"""
     logger = make_logger("mast.developer")
     check_hostname = not no_check_hostname
     env = datapower.Environment(
@@ -80,16 +104,40 @@ Parameters:
 
 @logged("mast.datapower.developer")
 @cli.command('flush-stylesheet-cache', category='caches')
-def flush_stylesheet_cache(appliances=[], credentials=[],
-                           timeout=120, Domain="", xml_manager="",
-                           no_check_hostname=False, web=False):
+def flush_stylesheet_cache(appliances=[],
+                           credentials=[],
+                           timeout=120,
+                           no_check_hostname=False,
+                           Domain="",
+                           xml_manager="",
+                           web=False):
     """Flushes the Stylesheet Cache for the specified xml_manager
 in the specified domain.
 
 Parameters:
 
-* Domain - The domain where xml_manager resides
-* xml_manager - The XMLManager who's cache to flush'"""
+* `-a, --appliances`: The hostname(s), ip addresse(s), environment name(s)
+or alias(es) of the appliances you would like to affect. For details
+on configuring environments please see the comments in
+`environments.conf` located in `$MAST_HOME/etc/default`. For details
+on configuring aliases please see the comments in `hosts.conf` located
+in `$MAST_HOME/etc/default`.
+* `-c, --credentials`: The credentials to use for authenticating to the
+appliances. Should be either one set to use for all appliances
+or one set for each appliance. Credentials should be in the form
+`username:password` and should be provided in a space-seperated list
+if multiple are provided. If you would prefer to not use plain-text
+passwords, you can use the output of
+`$ mast-system xor <username:password>`.
+* `-t, --timeout`: The timeout in seconds to wait for a response from
+an appliance for any single request. __NOTE__ Program execution may
+halt if a timeout is reached.
+* `-n, --no-check-hostname`: If specified SSL verification will be turned
+off when sending commands to the appliances.
+* `-D, --Domain`: The domain where xml_manager resides
+* `-x, --xml-manager`: The XMLManager who's cache to flush
+* `-w, --web`: __For Internel Use Only, will be removed in future versions.
+DO NOT USE.__"""
     logger = make_logger("mast.developer")
     check_hostname = not no_check_hostname
     env = datapower.Environment(
@@ -136,27 +184,59 @@ Parameters:
 
 @logged("mast.datapower.developer")
 @cli.command('import', category='services/objects')
-def _import(appliances=[], credentials=[],
-            timeout=120, Domain="", file_in=None,
-            deployment_policy=None, dry_run=False,
-            overwrite_files=True, overwrite_objects=True,
-            rewrite_local_ip=True, source_type='ZIP',
-            out_dir="tmp/", no_check_hostname=False, web=False):
+def _import(appliances=[],
+            credentials=[],
+            timeout=120,
+            no_check_hostname=False,
+            Domain="",
+            file_in=None,
+            deployment_policy=None,
+            dry_run=False,
+            overwrite_files=True,
+            overwrite_objects=True,
+            rewrite_local_ip=True,
+            source_type='ZIP',
+            out_dir="tmp/",
+            web=False):
     """Import a service/object into the specified appliances
 
 Parameters:
 
-* Domain - The domain into which the configuration will be imported
-* file_in - The file to import into the specified domain. This
+* `-a, --appliances`: The hostname(s), ip addresse(s), environment name(s)
+or alias(es) of the appliances you would like to affect. For details
+on configuring environments please see the comments in
+`environments.conf` located in `$MAST_HOME/etc/default`. For details
+on configuring aliases please see the comments in `hosts.conf` located
+in `$MAST_HOME/etc/default`.
+* `-c, --credentials`: The credentials to use for authenticating to the
+appliances. Should be either one set to use for all appliances
+or one set for each appliance. Credentials should be in the form
+`username:password` and should be provided in a space-seperated list
+if multiple are provided. If you would prefer to not use plain-text
+passwords, you can use the output of
+`$ mast-system xor <username:password>`.
+* `-t, --timeout`: The timeout in seconds to wait for a response from
+an appliance for any single request. __NOTE__ Program execution may
+halt if a timeout is reached.
+* `-n, --no-check-hostname`: If specified SSL verification will be turned
+off when sending commands to the appliances.
+* `-D. --Domain`: The domain into which the configuration will be imported
+* `-f, --file-in`: The file to import into the specified domain. This
 __MUST__ match the format specified in source_type
-* deployment_policy - The deployment policy to use for the import
+* `-d, --deployment-policy`: The deployment policy to use for the import
 (must already exist on the appliances)
-* dry_run - Whether to do a dry-run (nothing will be imported)
-* overwrite_files - Whether to overwrite files
-* overwrite_objects - Whether to overwrite objects
-* rewrite_local_ip - Whether to rewrite the local ip addresses in the
-configuration
-* source-type - The type of file to import. Can be "XML" or "ZIP" """
+* `--dry-run`: Whether to do a dry-run (nothing will be imported)
+* `-N, --no-overwrite-files`: If specified, no files will be overwritten
+as part of the import
+* `--no-overwrite-objects`: If specified, no objects will be overwritten
+as part of the import
+* `--no-rewrite-local-ip`: If specified, no local ip addresses will be
+rewritten as part of the import
+* `-s, --source-type`: The type of file to import. Can be "XML" or "ZIP"
+* `-o, --out-dir`: The directory to output artifacts generated by this
+script
+* `-w, --web`: __For Internel Use Only, will be removed in future versions.
+DO NOT USE.__"""
     logger = make_logger("mast.developer")
     t = Timestamp()
 
@@ -197,31 +277,61 @@ configuration
 
 @logged("mast.datapower.developer")
 @cli.command('export', category='services/objects')
-def export(appliances=[], credentials=[],
-           timeout=120, Domain="",
-           object_name=None, object_class=None,
-           comment='', format='ZIP',
-           persisted=True, all_files=True,
-           referenced_files=True, referenced_objects=True,
-           out_dir='tmp', no_check_hostname=False, web=False):
+def export(appliances=[],
+           credentials=[],
+           timeout=120,
+           no_check_hostname=False,
+           Domain="",
+           object_name=None,
+           object_class=None,
+           comment='',
+           format='ZIP',
+           persisted=True,
+           all_files=True,
+           referenced_files=True,
+           referenced_objects=True,
+           out_dir='tmp',
+           web=False):
     """Exports a service or object to be used to import into another
 domain or appliance
 
 Parameters:
 
-* Domain - The domain from which to export service/object
-* object_name - The name of the object to export
-* object_class - The class of the object to export
-* comment - The comment to embed into the export
-* format - the format in which to export the configuration. This
+* `-a, --appliances`: The hostname(s), ip addresse(s), environment name(s)
+or alias(es) of the appliances you would like to affect. For details
+on configuring environments please see the comments in
+`environments.conf` located in `$MAST_HOME/etc/default`. For details
+on configuring aliases please see the comments in `hosts.conf` located
+in `$MAST_HOME/etc/default`.
+* `-c, --credentials`: The credentials to use for authenticating to the
+appliances. Should be either one set to use for all appliances
+or one set for each appliance. Credentials should be in the form
+`username:password` and should be provided in a space-seperated list
+if multiple are provided. If you would prefer to not use plain-text
+passwords, you can use the output of
+`$ mast-system xor <username:password>`.
+* `-t, --timeout`: The timeout in seconds to wait for a response from
+an appliance for any single request. __NOTE__ Program execution may
+halt if a timeout is reached.
+* `-n, --no-check-hostname`: If specified SSL verification will be turned
+off when sending commands to the appliances.
+* `-D, --Domain`: The domain from which to export service/object
+* `-o, --object-name`: The name of the object to export
+* `-O, --object-class`: The class of the object to export
+* `-C, --comment`: The comment to embed into the export
+* `-f, --format`: the format in which to export the configuration. This
 can be either "XML" or "ZIP"
-* persisted - Whether to export the persisted configuration
-(if False the running configuration will be exported)
-* all-files - Whether to include all referenced files in the export
-* referenced_files - Whether to include the referenced files
-* referenced_objects - Whether to include the referenced objects
-* out_dir - (**NOT NEEDED IN THE WEB GUI**)The directory (local)
-in which to save the export"""
+* `-N, --no-persisted`: If specified, the running configuration will be
+exported as opposed to the persisted configuration
+* `--no-all-files`: If specified, the export will not include all files
+* `--no-referenced-files`: If specified, the referenced files will not
+be included in the export
+* `--no-referenced-objects`: If specified, referenced objects will not
+be included in the export.
+* `--out-dir`: (**NOT NEEDED IN THE WEB GUI**)The directory (local)
+in which to save the export
+* `-w, --web`: __For Internel Use Only, will be removed in future versions.
+DO NOT USE.__"""
     logger = make_logger("mast.developer")
     t = Timestamp()
     if object_name is None or object_class is None:
@@ -276,20 +386,37 @@ in which to save the export"""
 
 @logged("mast.datapower.developer")
 @cli.command('list-probes', category='services/objects')
-def list_probes(appliances=[], credentials=[],
-                timeout=120,   Domain=[],
-                no_check_hostname=False, web=False):
+def list_probes(appliances=[],
+                credentials=[],
+                timeout=120,
+                no_check_hostname=False,
+                Domain=[],
+                web=False):
     """Lists all enabled probes in all specified domains
 
 Parameters:
 
-* appliances - The hostname/ip/alias/environment of the
-appliances you would like to inspect
-* credentials - The credentials to use to authenticate to the
-appliances
-* timeout - The timeout in seconds to wait for a response from the
-appliances (per-request)
-* Domain - One or more domains to inspect"""
+* `-a, --appliances`: The hostname(s), ip addresse(s), environment name(s)
+or alias(es) of the appliances you would like to affect. For details
+on configuring environments please see the comments in
+`environments.conf` located in `$MAST_HOME/etc/default`. For details
+on configuring aliases please see the comments in `hosts.conf` located
+in `$MAST_HOME/etc/default`.
+* `-c, --credentials`: The credentials to use for authenticating to the
+appliances. Should be either one set to use for all appliances
+or one set for each appliance. Credentials should be in the form
+`username:password` and should be provided in a space-seperated list
+if multiple are provided. If you would prefer to not use plain-text
+passwords, you can use the output of
+`$ mast-system xor <username:password>`.
+* `-t, --timeout`: The timeout in seconds to wait for a response from
+an appliance for any single request. __NOTE__ Program execution may
+halt if a timeout is reached.
+* `-n, --no-check-hostname`: If specified SSL verification will be turned
+off when sending commands to the appliances.
+* `-D, --Domain`: One or more domains to inspect
+* `-w, --web`: __For Internel Use Only, will be removed in future versions.
+DO NOT USE.__"""
     import urllib2
     check_hostname = not no_check_hostname
     env = datapower.Environment(
