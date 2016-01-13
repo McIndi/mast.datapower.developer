@@ -1,4 +1,4 @@
-"""==========================================================
+"""
 mast dev:
 
 A set of tools for automating routine development
@@ -6,7 +6,7 @@ tasks associated with IBM DataPower appliances.
 
 Copyright 2016, All Rights Reserved
 McIndi Solutions LLC
-=========================================================="""
+"""
 import os
 import commandr
 from mast.plugins.web import Plugin
