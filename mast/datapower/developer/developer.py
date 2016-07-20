@@ -262,26 +262,43 @@ DO NOT USE.__"""
         "Attempting to import {} to {}".format(
             file_in, str(env.appliances)))
 
-    kwargs = {
-        'domain': Domain,
-        'zip_file': file_in,
-        'deployment_policy': deployment_policy,
-        'dry_run': dry_run,
-        'overwrite_files': overwrite_files,
-        'overwrite_objects': overwrite_objects,
-        'rewrite_local_ip': rewrite_local_ip,
-        'source_type': source_type}
+    results = {}
+    for appliance in env.appliances:
+        if not web:
+            print appliance.hostname
+        results[appliance.hostname] = {}
+        domains = Domain
+        if "all-domains" in domains:
+            domains = appliance.domains
+        for domain in domains:
+            if not web:
+                print "\t", domain
+            kwargs = {
+                'domain': domain,
+                'zip_file': file_in,
+                'deployment_policy': deployment_policy,
+                'dry_run': dry_run,
+                'overwrite_files': overwrite_files,
+                'overwrite_objects': overwrite_objects,
+                'rewrite_local_ip': rewrite_local_ip,
+                'source_type': source_type}
 
-    results = env.perform_action('do_import', **kwargs)
-    logger.debug("Responses received: {}".format(str(results)))
+            resp = appliance.do_import(**kwargs)
+            results[appliance.hostname][domain] = resp
+            logger.debug("Response received: {}".format(str(resp)))
 
-    out_dir = os.path.join(out_dir, "import_results", t.timestamp)
-    os.makedirs(out_dir)
+            out_dir = os.path.join(out_dir, "import_results", t.timestamp)
+            os.makedirs(out_dir)
 
-    for host, response in results.items():
-        filename = os.path.join(out_dir, "{}-import_results.xml".format(host))
-        with open(filename, 'wb') as fout:
-            fout.write(response.pretty)
+            filename = os.path.join(
+                out_dir,
+                "{}-{}-import_results.xml".format(
+                    appliance.hostname,
+                    domain
+                )
+            )
+            with open(filename, 'wb') as fout:
+                fout.write(resp.pretty)
     if web:
         return util.render_see_download_table(
             results, suffix="import"), util.render_history(env)
