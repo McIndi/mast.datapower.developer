@@ -12,6 +12,7 @@ import commandr
 from mast.plugins.web import Plugin
 from mast.datapower import datapower
 from mast.timestamp import Timestamp
+from mast.pprint import pprint_xml
 from pkg_resources import resource_string
 from mast.logging import make_logger, logged
 import mast.plugin_utils.plugin_utils as util
@@ -81,29 +82,22 @@ DO NOT USE.__"""
         credentials,
         timeout,
         check_hostname=check_hostname)
-    logger.info(
-        "Attempting to flush document cache for "
-        "{} in {} domain on {} XMLManager".format(
-            str(env.appliances), Domain, xml_manager))
+    msg = "Attempting to flush document cache for {} in {} domain on {} XMLManager".format(str(env.appliances), Domain, xml_manager)
+    logger.info(msg)
+    if not web:
+        print msg
 
     kwargs = {"XMLManager": xml_manager, 'domain': Domain}
     responses = env.perform_action('FlushDocumentCache', **kwargs)
     logger.debug("Responses received: {}".format(str(responses)))
 
-    if web:
+    if not web:
+        for host, resp in responses.items():
+            print "{}\n{}".format(host, "="*len(host))
+            pprint_xml(resp.xml)
+    else:
         return util.render_boolean_results_table(
             responses, suffix="flush_document_cache"), util.render_history(env)
-
-    for host, response in list(responses.items()):
-        if response:
-            print
-            print host
-            print '=' * len(host)
-            if response:
-                print 'OK'
-            else:
-                print "FAILURE"
-                print response
 
 
 @logged("mast.datapower.developer")
@@ -153,30 +147,23 @@ DO NOT USE.__"""
         credentials,
         timeout,
         check_hostname=check_hostname)
-    logger.info(
-        "Attempting to flush stylesheet cache for "
-        "{} in {} domain on {} XMLManager".format(
-            str(env.appliances), Domain, xml_manager))
+    msg = "Attempting to flush stylesheet cache for {} in {} domain on {} XMLManager".format(str(env.appliances), Domain, xml_manager)
+    logger.info(msg)
+    if not web:
+        print msg
 
     kwargs = {"XMLManager": xml_manager, 'domain': Domain}
     responses = env.perform_action('FlushStylesheetCache', **kwargs)
     logger.debug("Responses received: {}".format(str(responses)))
 
-    if web:
+    if not web:
+        for host, resp in responses.items():
+            print "{}\n{}".format(host, "="*len(host))
+            pprint_xml(resp.xml)
+    else:
         return util.render_boolean_results_table(
             responses,
             suffix="flush_stylesheet_cache"), util.render_history(env)
-
-    for host, response in list(responses.items()):
-        if response:
-            print
-            print host
-            print '=' * len(host)
-            if response:
-                print 'OK'
-            else:
-                print "FAILURE"
-                print response
 
 # services/objects
 # ================
@@ -258,9 +245,10 @@ DO NOT USE.__"""
         credentials,
         timeout,
         check_hostname=check_hostname)
-    logger.info(
-        "Attempting to import {} to {}".format(
-            file_in, str(env.appliances)))
+    msg = "Attempting to import {} to {}".format(file_in, str(env.appliances))
+    logger.info(msg)
+    if not web:
+        print msg
 
     results = {}
     out_dir = os.path.join(out_dir, "import_results", t.timestamp)
@@ -287,6 +275,8 @@ DO NOT USE.__"""
 
             resp = appliance.do_import(**kwargs)
             results[appliance.hostname][domain] = resp
+            if not web:
+                pprint_xml(resp.xml)
             logger.debug("Response received: {}".format(str(resp)))
 
 
@@ -380,9 +370,8 @@ DO NOT USE.__"""
         credentials,
         timeout,
         check_hostname=check_hostname)
-    logger.info(
-        "Attempting to export {} from {}".format(
-            object_name, str(env.appliances)))
+    msg = "Attempting to export {} from {}".format(object_name, str(env.appliances))
+    logger.info(msg)
 
     kwargs = {
         'domain': Domain,
@@ -408,10 +397,13 @@ DO NOT USE.__"""
             hostname,
             object_name,
             extention))
-        logger.debug("Writing export of {} from {} to {}".format(
-            object_name, hostname, filename))
+        msg = "Writing export of {} from {} to {}".format(object_name, hostname, filename)
+        logger.debug(msg)
+        if not web:
+            print msg
         with open(filename, 'wb') as fout:
             fout.write(_export)
+    
     if web:
         return util.render_see_download_table(
             results, suffix="export"), util.render_history(env)
